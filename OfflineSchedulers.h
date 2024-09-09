@@ -365,6 +365,7 @@ void MultiLevelFeedbackQueue(Process p[],int n,int quantum0, int quantum1, int q
                 p[i].error=true;
                 p[i].finished=false;
                 aft=timeinms()-start;
+                insert(p[i],filename);
                 count++;
             }
             else{
@@ -408,6 +409,7 @@ void MultiLevelFeedbackQueue(Process p[],int n,int quantum0, int quantum1, int q
                 p[i].error=true;
                 p[i].finished=false;
                 aft=timeinms()-start;
+                insert(p[i],filename);
                 count++;
             }
             else{
@@ -455,6 +457,7 @@ void MultiLevelFeedbackQueue(Process p[],int n,int quantum0, int quantum1, int q
                 p[i].finished=false;
                 aft=timeinms()-start;
                 RemoveNode(Q3);
+                insert(p[i],filename);
                 count++;
             }
             else{
