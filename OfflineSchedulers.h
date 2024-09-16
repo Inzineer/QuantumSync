@@ -210,31 +210,31 @@ void RoundRobin(Process p[],int n,int quantum){
 
 }
 
-struct Node{
+typedef struct Node{
     int index;
-    struct Node* next;
-};
+    struct Node *next;
+} Node;
 
-struct Queue{
-    struct Node* FirstNode;
-    struct Node* LastNode;
-};
+typedef struct Queue{
+    Node *FirstNode;
+    Node *LastNode;
+} Queue;
 
-struct Node* newNode(int i){
-    struct Node* temp=(struct Node*) malloc(sizeof(struct Node));
+Node* newNode(int i){
+    Node *temp=(Node*)malloc(sizeof(Node));
     temp->index=i;
     temp->next=NULL;
     return temp;
 }
 
-struct Queue* createQueue(){
-    struct Queue* q=(struct Queue*) malloc(sizeof(struct Queue));
+Queue* createQueue(){
+    Queue *q=(Queue*) malloc(sizeof(Queue));
     q->FirstNode=NULL;
     q->LastNode=NULL;
     return q;
 }
 
-void insertQueue(struct Queue* Q,struct Node* node){
+void insertQueue(Queue *Q,Node *node){
     if(Q->FirstNode==NULL){
         Q->FirstNode=node;
         Q->LastNode=node;
@@ -247,8 +247,8 @@ void insertQueue(struct Queue* Q,struct Node* node){
     }
 }
 
-void printQueue(struct Queue* Q){
-    struct Node* curr=Q->FirstNode;
+void printQueue(Queue *Q){
+    Node *curr=Q->FirstNode;
     if(curr==NULL){
         printf("empty Queue\n");
     }
@@ -258,29 +258,38 @@ void printQueue(struct Queue* Q){
     }
 }
 
-void RemoveNode(struct Queue* Q){
+void RemoveNode(Queue *Q){
     if(Q->FirstNode!=NULL){
+        Node *temp=Q->FirstNode;
         Q->FirstNode=Q->FirstNode->next;
         if(Q->FirstNode==NULL){
             Q->LastNode=NULL;
         }
+        free(temp);
     }
 }
 
-void UpgradeAllNode(struct Queue* Q1,struct Queue* Q2,struct Queue* Q3){
-    struct Node* curr=Q2->FirstNode;
-    while(curr!=NULL){
-        int k=curr->index;
-        struct Node* temp=newNode(k);
-        insertQueue(Q1,temp);
-        curr=curr->next;
+void UpgradeAllNode(Queue *Q1,Queue *Q2,Queue *Q3){
+    if(Q1->FirstNode!=NULL){
+        Q1->LastNode->next=Q2->FirstNode;
+        if(Q2->LastNode!=NULL){
+            Q1->LastNode=Q2->LastNode;
+        }
     }
-    curr=Q3->FirstNode;
-    while(curr!=NULL){
-        int k=curr->index;
-        struct Node* temp=newNode(k);
-        insertQueue(Q1,temp);
-        curr=curr->next;
+    else{
+        Q1->FirstNode=Q2->FirstNode;
+        Q1->LastNode=Q2->LastNode;
+    }
+
+    if(Q1->FirstNode!=NULL){
+        Q1->LastNode->next=Q3->FirstNode;
+        if(Q3->LastNode!=NULL){
+            Q1->LastNode=Q3->LastNode;
+        }
+    }
+    else{
+        Q1->FirstNode=Q3->FirstNode;
+        Q1->LastNode=Q3->LastNode;
     }
     Q2->FirstNode=NULL;
     Q3->FirstNode=NULL;
