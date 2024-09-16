@@ -298,11 +298,11 @@ void UpgradeAllNode(Queue *Q1,Queue *Q2,Queue *Q3){
 }
 
 void MultiLevelFeedbackQueue(Process p[],int n,int quantum0, int quantum1, int quantum2, int boostTime){ 
-    struct Queue* Q1=createQueue();
-    struct Queue* Q2=createQueue();
-    struct Queue* Q3=createQueue();
+    Queue* Q1=createQueue();
+    Queue* Q2=createQueue();
+    Queue* Q3=createQueue();
     for(int i=0;i<n;i++){
-        struct Node* temp=newNode(i);
+        Node* temp=newNode(i);
         insertQueue(Q1,temp);
         p[i].finished=false;
         p[i].started=false;
@@ -367,7 +367,7 @@ void MultiLevelFeedbackQueue(Process p[],int n,int quantum0, int quantum1, int q
                 kill(p[i].process_id,SIGSTOP);
                 aft=timeinms()-start;
                 p[i].burst_time+=aft-conttime;
-                struct Node* temp=newNode(i);
+                Node* temp=newNode(i);
                 insertQueue(Q2,temp);
             } 
             else if(!WIFEXITED(status) || WEXITSTATUS(status)!=0){
@@ -411,7 +411,7 @@ void MultiLevelFeedbackQueue(Process p[],int n,int quantum0, int quantum1, int q
                 kill(p[i].process_id,SIGSTOP);
                 aft=timeinms()-start;
                 p[i].burst_time+=aft-conttime;
-                struct Node* temp=newNode(i);
+                Node* temp=newNode(i);
                 insertQueue(Q3,temp);
             } 
             else if(!WIFEXITED(status) || WEXITSTATUS(status)!=0){
@@ -434,11 +434,6 @@ void MultiLevelFeedbackQueue(Process p[],int n,int quantum0, int quantum1, int q
             }
             RemoveNode(Q2);
             printf("In Priority 2 Queue | Command: %s | start_time of context: %ld | completion_time of context: %ld\n",p[i].command,conttime,aft);
-            present=timeinms()-start;
-            if(present-past>=boostTime){
-                UpgradeAllNode(Q1,Q2,Q3);
-                past=timeinms()-start;
-            }
         }
         else if(Q3->FirstNode!=NULL){
 
@@ -460,12 +455,13 @@ void MultiLevelFeedbackQueue(Process p[],int n,int quantum0, int quantum1, int q
                 kill(p[i].process_id,SIGSTOP);
                 aft=timeinms()-start;
                 p[i].burst_time+=aft-conttime;
+                Node *temp=newNode(i);
+                insertQueue(Q3,temp);
             } 
             else if(!WIFEXITED(status) || WEXITSTATUS(status)!=0){
                 p[i].error=true;
                 p[i].finished=false;
                 aft=timeinms()-start;
-                RemoveNode(Q3);
                 insert(p[i],filename);
                 count++;
             }
@@ -479,16 +475,14 @@ void MultiLevelFeedbackQueue(Process p[],int n,int quantum0, int quantum1, int q
                 p[i].waiting_time=p[i].turnaround_time-p[i].burst_time;
                 insert(p[i],filename);
                 count++;
-                RemoveNode(Q3);
             }
+            RemoveNode(Q3);
             printf("In Priority 3 Queue | Command: %s | start_time of context: %ld | completion_time of context: %ld\n",p[i].command,conttime,aft);
-            present=timeinms()-start;
-            if(present-past>=boostTime){
-                UpgradeAllNode(Q1,Q2,Q3);
-                past=timeinms()-start;
-            }
         }
-
+        present=timeinms()-start;
+        if(present-past>=boostTime){
+            UpgradeAllNode(Q1,Q2,Q3);
+            past=timeinms()-start;
+        }
     }
-
 }
